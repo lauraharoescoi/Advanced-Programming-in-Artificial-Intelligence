@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import random
+import matplotlib as plt
+import os
 
 # Classes
 
@@ -85,9 +87,47 @@ class CNF():
         sys.stdout.write("p cnf %d %d\n" % (self.num_vars, self.num_clauses))
         for c in self.clauses:
             c.show()
+            
+    def formula_file(self):
+        """Writes the formula to a file"""
+        file = open("formula.cnf", "w")
+        file.write("c Random CNF formula\n")
+        file.write("p cnf %d %d\n" % (self.num_vars, self.num_clauses))
+        for c in self.clauses:
+            file.write("%s 0\n" % " ".join(str(l) for l in c.lits))
+        file.close()
+            
+    def solve(self):
+        """calculates satisfactibility of the formula using minisat"""
+        self.formula_file()
+        file = open("solution.out", "r")
+        os.system("./minisat formula.cnf &> solution.out")
+        text = file.readlines[-1]
+        file.close()
+        print(text)
+        return text == "SATISFIABLE"
+    
 
 
 # Main
+def graph(num_vars, clause_length=3):
+    
+    x = []
+    y = []
+    for i in range(10):
+        x.append(i)
+        solved = 0
+        for _ in range(20):
+            cnf_formula = CNF(num_vars=num_vars, num_clauses=num_vars*i, clause_length=clause_length)
+            is_solved = cnf_formula.solve()
+            if is_solved:
+                solve+=1
+        solved/=20
+        
+        y.append(solved)
+    print(x, y)
+    plt.plot(x, y)
+    plt.show()
 
 if __name__ == '__main__':
     # A random CNF generator
@@ -130,5 +170,6 @@ if __name__ == '__main__':
     # Create a solver instance with the problem to solve
     cnf_formula = CNF(num_vars, num_clauses, clause_length)
     # Show formula
-    cnf_formula.show()
+    cnf_formula.formula_file()
+    #cnf_formula.show()
     
