@@ -19,9 +19,9 @@ def parse(filename):
         for literal in line[:-2].split():
             literal = int(literal)
             if literal > 0:
-                clausePos += pow(2, literal -1)
+                clausePos ^= 1 << literal-1
             else:
-                clauseNeg += pow(2, -literal -1)
+                clauseNeg ^= 1 << (-literal - 1)
             lit_clause[literal].append(count)
         clauses.append((clausePos, clauseNeg))
         #print(bin(clausePos), bin(clauseNeg))
@@ -33,7 +33,7 @@ def get_random_interpretation(n_vars):
     interpretation = 0
     for i in range(n_vars):
         if random.random() < 0.5:
-            interpretation += pow(2, i) 
+            interpretation ^= 1 << (i)
 
     return interpretation
 
@@ -57,7 +57,17 @@ def update_tsl(literal_to_flip, true_sat_lit, lit_clause):
 def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
     break_min = sys.maxsize
     best_literals = []
-    for literal in clause:
+    literals = []
+    for lit_index, binary in enumerate(bin(clause[0])[::-1]):
+        if binary == "1":
+            literals.append(lit_index + 1)
+
+    for lit_index, binary in enumerate(bin(clause[1])[::-1]):
+        if binary == "1":
+            literals.append(-lit_index - 1)
+    print(literals)
+
+    for literal in literals:
 
         break_score = 0
 
@@ -91,13 +101,14 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
                 return interpretation
 
             clause_index = random.choice(unsatisfied_clauses_index)
+            print(clause_index)
             unsatisfied_clause = clauses[clause_index]
 
             lit_to_flip = compute_broken(unsatisfied_clause, true_sat_lit, lit_clause)
 
             update_tsl(lit_to_flip, true_sat_lit, lit_clause)
 
-            interpretation[abs(lit_to_flip)] *= -1
+            interpretation ^= 1 << (abs(lit_to_flip) - 1 )
 
 
 def main():
