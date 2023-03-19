@@ -24,7 +24,6 @@ def parse(filename):
                 clauseNeg ^= 1 << (-literal - 1)
             lit_clause[literal].append(count)
         clauses.append((clausePos, clauseNeg))
-        #print(bin(clausePos), bin(clauseNeg))
         count += 1
     return clauses, n_vars, lit_clause
 
@@ -39,11 +38,9 @@ def get_random_interpretation(n_vars):
 
 
 def get_true_sat_lit(clauses, interpretation: int):
-    print(bin(interpretation))
     true_sat_lit = [0 for _ in clauses]
     for index, clause in enumerate(clauses):
         true_sat_lit[index] += bin(interpretation & clause[0]).count("1") + bin((interpretation & clause[1]) ^ clause[1]).count("1")
-        print(true_sat_lit[index])
     return true_sat_lit
 
 
@@ -65,7 +62,6 @@ def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
     for lit_index, binary in enumerate(bin(clause[1])[::-1]):
         if binary == "1":
             literals.append(-lit_index - 1)
-    print(literals)
 
     for literal in literals:
 
@@ -82,7 +78,7 @@ def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
             best_literals.append(literal)
 
     if break_min != 0 and random.random() < omega:
-        best_literals = clause
+        best_literals = literals
 
     return random.choice(best_literals)
 
@@ -101,7 +97,6 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
                 return interpretation
 
             clause_index = random.choice(unsatisfied_clauses_index)
-            print(clause_index)
             unsatisfied_clause = clauses[clause_index]
 
             lit_to_flip = compute_broken(unsatisfied_clause, true_sat_lit, lit_clause)
@@ -117,8 +112,11 @@ def main():
 
     solution = run_sat(clauses, n_vars, lit_clause)
 
+    sol_arr = [(index + 1) if binary=="1" else (-index - 1) for index, binary in enumerate(bin(solution)[:1:-1])]
+    print(sol_arr)
+
     print('s SATISFIABLE')
-    print('v ' + ' '.join(map(str, solution[1:])) + ' 0')
+    print('v ' + ' '.join(map(str, sol_arr)) + ' 0')
 
 
 if __name__ == '__main__':
