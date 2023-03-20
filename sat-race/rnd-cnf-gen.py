@@ -88,9 +88,9 @@ class CNF():
         for c in self.clauses:
             c.show()
             
-    def formula_file(self):
+    def formula_file(self, file):
         """Writes the formula to a file"""
-        file = open("formula.cnf", "w")
+        file = open(file, "w")
         file.write("c Random CNF formula\n")
         file.write("p cnf %d %d\n" % (self.num_vars, self.num_clauses))
         for c in self.clauses:
@@ -157,19 +157,21 @@ if __name__ == '__main__':
     if num_vars < 1:
         sys.exit("ERROR: Length of clauses must be >= 1 (%d)." % clause_length)
 
-    if len(sys.argv) > 4:
-        try:
-            seed = int(sys.argv[4])
-        except:
-            sys.exit("ERROR: Seed number not an integer (%s)." % sys.argv[4])
-    else:
-        seed = None
+    # if len(sys.argv) > 4:
+    #     try:
+    #         seed = int(sys.argv[4])
+    #     except:
+    #         sys.exit("ERROR: Seed number not an integer (%s)." % sys.argv[4])
+    # else:
+    #     seed = None
 
+    file = sys.argv[4]
     # Initialize random seed (current time)
+    seed = None
     random.seed(seed)
     # Create a solver instance with the problem to solve
     cnf_formula = CNF(num_vars, num_clauses, clause_length)
     # Show formula
-    cnf_formula.formula_file()
+    cnf_formula.formula_file(file)
     #cnf_formula.show()
     
