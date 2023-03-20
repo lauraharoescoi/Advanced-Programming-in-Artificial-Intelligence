@@ -113,7 +113,9 @@ def main():
     solution = run_sat(clauses, n_vars, lit_clause)
 
     sol_arr = [(index + 1) if binary=="1" else (-index - 1) for index, binary in enumerate(bin(solution)[:1:-1])]
-    print(sol_arr)
+    
+    while(len(sol_arr) < n_vars):
+        sol_arr.append(-len(sol_arr) - 1)
 
     print('s SATISFIABLE')
     print('v ' + ' '.join(map(str, sol_arr)) + ' 0')
